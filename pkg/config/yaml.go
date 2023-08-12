@@ -1,6 +1,6 @@
 package config
 
 type BotConfig struct {
-	AppID string `mapstructure:"AppID"`
+	AppID uint64 `mapstructure:"AppID"`
 	Token string `mapstructure:"Token"`
 }
