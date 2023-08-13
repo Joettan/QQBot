@@ -59,7 +59,10 @@ func (p Processor) ProcessATMessage(input string, data *dto.WSATMessageData) err
 		}
 		//插入消息进入21点环节
 		p.sendReply(ctx, channelId, toCreate)
-		p.saveMessage(ctx, data.Author.ID, input)
+		err := p.saveMessage(ctx, data.Author.ID, input)
+		if err != nil {
+			return err
+		}
 	case "播放":
 		log.Println("播放", input)
 		input = cmd.Content
@@ -102,7 +105,10 @@ func (p Processor) ProcessATMessage(input string, data *dto.WSATMessageData) err
 			return nil
 		}
 		p.sendReply(ctx, data.ChannelID, toCreate)
-		p.saveMessage(ctx, data.Author.ID, input)
+		err := p.saveMessage(ctx, data.Author.ID, input)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -119,13 +125,18 @@ func (p Processor) ProcessMessage(input string, data *dto.WSMessageData) error {
 		return nil
 	}
 
-	if strings.Index(input, "退出") != -1 {
-		p.deleteMessageHistory(ctx, userId)
-	}
-
 	//如果存在相应key，说明在游戏环节之中
 	toCreate := &dto.MessageToCreate{
 		MsgID: data.ID,
+	}
+	if strings.Index(input, "退出") != -1 {
+		err := p.deleteMessageHistory(ctx, userId)
+		if err != nil {
+			return err
+		}
+		toCreate.Content = "退出之前的聊天环节"
+		p.sendReply(ctx, data.ChannelID, toCreate)
+		return nil
 	}
 	messages, _ := p.getMessageHistory(ctx, userId)
 	log.Println("messages", messages)
