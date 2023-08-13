@@ -2,6 +2,7 @@ package process
 
 import (
 	"context"
+	"fmt"
 	"github.com/sashabaranov/go-openai"
 	"github.com/tencent-connect/botgo/dto"
 	"github.com/tencent-connect/botgo/dto/message"
@@ -53,6 +54,7 @@ func (p Processor) ProcessATMessage(input string, data *dto.WSATMessageData) err
 		p.sendReply(ctx, data.ChannelID, toCreate)
 		p.saveMessage(ctx, data.Author.ID, input)
 	default:
+		fmt.Println([]string{input}[0])
 		toCreate.Content, _ = p.GeneratorGPTContent(ctx, []string{input})
 		p.sendReply(ctx, data.ChannelID, toCreate)
 	}
@@ -82,6 +84,7 @@ func (p Processor) ProcessMessage(input string, data *dto.WSMessageData) error {
 }
 
 func (p Processor) sendReply(ctx context.Context, channelID string, toCreate *dto.MessageToCreate) {
+	log.Println(toCreate)
 	if _, err := p.Api.PostMessage(ctx, channelID, toCreate); err != nil {
 		log.Println(err)
 	}
@@ -93,7 +96,8 @@ func (p *Processor) defaultReplyContent() (string, error) {
 
 func (p *Processor) GeneratorGPTContent(ctx context.Context, msg []string) (string, error) {
 	client := openai.NewClient(global.GPTConfig.GPTToken)
-	messages := make([]openai.ChatCompletionMessage, len(msg))
+	messages := make([]openai.ChatCompletionMessage, 0, len(msg))
+	fmt.Println(messages)
 	for _, v := range msg {
 		messages = append(messages, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleUser,
