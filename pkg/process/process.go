@@ -77,6 +77,7 @@ func (p Processor) ProcessMessage(input string, data *dto.WSMessageData) error {
 		MsgID: data.ID,
 	}
 	messages, _ := p.getMessageHistory(ctx, userId)
+	fmt.Println(messages)
 	toCreate.Content, _ = p.GeneratorGPTContent(ctx, messages)
 	p.sendReply(ctx, data.ChannelID, toCreate)
 
