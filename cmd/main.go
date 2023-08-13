@@ -29,7 +29,7 @@ func main() {
 	//注册服务
 	_ = service.NewFactory()
 
-	intent := websocket.RegisterHandlers(handler.ATMessageHandler())
+	intent := websocket.RegisterHandlers(handler.ATMessageHandler(), handler.MessageHandler())
 
 	log.Printf("intent:%+v", intent)
 
