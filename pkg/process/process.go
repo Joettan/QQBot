@@ -33,6 +33,7 @@ func InitProcessor(api openapi.OpenAPI) error {
 func (p Processor) ProcessATMessage(input string, data *dto.WSATMessageData) error {
 	ctx := context.Background()
 	cmd := message.ParseCommand(input)
+	channelId := data.ChannelID
 
 	//区分的是相应内容，而不是消息的header
 	toCreate := &dto.MessageToCreate{
@@ -47,16 +48,35 @@ func (p Processor) ProcessATMessage(input string, data *dto.WSATMessageData) err
 	switch cmd.Cmd {
 	case "hi":
 		toCreate.Content, _ = p.defaultReplyContent()
-		p.sendReply(ctx, data.ChannelID, toCreate)
+		p.sendReply(ctx, channelId, toCreate)
 	case "21点":
 		input = "你作为庄家，我作为闲家，我们一起玩21点吧"
 		toCreate.Content, _ = p.GeneratorGPTContent(ctx, []string{input})
+		if toCreate.Content == "" {
+			log.Println("GeneratorGPTContent error")
+			return nil
+		}
 		//插入消息进入21点环节
-		p.sendReply(ctx, data.ChannelID, toCreate)
+		p.sendReply(ctx, channelId, toCreate)
 		p.saveMessage(ctx, data.Author.ID, input)
+	case "播放":
+		input = cmd.Content
+		_, err := p.Api.PostAudio(ctx, channelId, &dto.AudioControl{
+			URL:    "https://soundcloud.com/essenger/essenger-and-cryoshell-as?utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing",
+			Status: 0,
+			Text:   "As Above, So Below",
+		})
+		if err != nil {
+			log.Println("PostAudio error", err)
+			return err
+		}
 	default:
 		fmt.Println([]string{input}[0])
 		toCreate.Content, _ = p.GeneratorGPTContent(ctx, []string{input})
+		if toCreate.Content == "" {
+			log.Println("GeneratorGPTContent error")
+			return nil
+		}
 		p.sendReply(ctx, data.ChannelID, toCreate)
 	}
 
