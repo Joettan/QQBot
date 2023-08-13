@@ -105,10 +105,6 @@ func (p Processor) ProcessATMessage(input string, data *dto.WSATMessageData) err
 			return nil
 		}
 		p.sendReply(ctx, data.ChannelID, toCreate)
-		err := p.saveMessage(ctx, data.Author.ID, input)
-		if err != nil {
-			return err
-		}
 	}
 
 	return nil
@@ -130,6 +126,7 @@ func (p Processor) ProcessMessage(input string, data *dto.WSMessageData) error {
 		MsgID: data.ID,
 	}
 	if strings.Index(input, "退出") != -1 {
+		log.Println("退出")
 		err := p.deleteMessageHistory(ctx, userId)
 		if err != nil {
 			return err
