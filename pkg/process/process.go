@@ -116,15 +116,16 @@ func (p Processor) ProcessMessage(input string, data *dto.WSMessageData) error {
 	exist, _ := p.checkExist(ctx, userId)
 	log.Println("input", input)
 
-	//如果不存在相应key，说明不在游戏环节之中
-	if !exist {
-		log.Println("key not exist")
-		return nil
-	}
-
 	//如果存在相应key，说明在游戏环节之中
 	toCreate := &dto.MessageToCreate{
 		MsgID: data.ID,
+	}
+	//如果不存在相应key，说明不在游戏环节之中
+	if !exist {
+		log.Println("key not exist")
+		toCreate.Content = "不在任何一个聊天环节中"
+		p.sendReply(ctx, data.ChannelID, toCreate)
+		return nil
 	}
 	if strings.Index(input, "退出") != -1 {
 		log.Println("退出")
