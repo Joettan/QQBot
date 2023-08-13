@@ -114,6 +114,7 @@ func (p *Processor) GeneratorGPTContent(ctx context.Context, msg []string) (stri
 	if err != nil {
 		log.Printf("ChatGPT queryApi :%v", err)
 	}
+	fmt.Println(resp.Choices)
 
 	return resp.Choices[0].Message.Content, nil
 }
