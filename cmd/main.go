@@ -30,6 +30,8 @@ func main() {
 
 	intent := websocket.RegisterHandlers(handler.MessageHandler())
 
+	log.Printf("intent:%+v", intent)
+
 	// 启动 session manager 进行 ws 连接的管理，如果接口返回需要启动多个 shard 的连接，这里也会自动启动多个
 	botgo.NewSessionManager().Start(ws, token, &intent)
 }
