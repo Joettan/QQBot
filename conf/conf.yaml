@@ -3,7 +3,7 @@ QQBot:
   Token: R5HUuAoP0c8LF69hzD5I9dBxwH70135g
   AppKey: ASl5Ql6Rm8WuIezI
 GPTConfig:
-  GPTToken: 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
+  GPTToken: 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
 RedisConfig:
   Host: localhost
   Port: 6379
