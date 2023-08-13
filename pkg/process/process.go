@@ -60,6 +60,7 @@ func (p Processor) ProcessATMessage(input string, data *dto.WSATMessageData) err
 		p.sendReply(ctx, channelId, toCreate)
 		p.saveMessage(ctx, data.Author.ID, input)
 	case "播放":
+		log.Println("播放", input)
 		input = cmd.Content
 		_, err := p.Api.PostAudio(ctx, channelId, &dto.AudioControl{
 			URL:    "https://soundcloud.com/essenger/essenger-and-cryoshell-as?utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing",
