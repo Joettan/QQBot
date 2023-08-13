@@ -69,6 +69,7 @@ func (p Processor) ProcessMessage(input string, data *dto.WSMessageData) error {
 
 	//如果不存在相应key，说明不在游戏环节之中
 	if !exist {
+		log.Println("key not exist")
 		return nil
 	}
 
@@ -77,6 +78,8 @@ func (p Processor) ProcessMessage(input string, data *dto.WSMessageData) error {
 		MsgID: data.ID,
 	}
 	messages, _ := p.getMessageHistory(ctx, userId)
+	log.Println("messages", messages)
+	messages = append(messages, input)
 	fmt.Println(messages)
 	toCreate.Content, _ = p.GeneratorGPTContent(ctx, messages)
 	p.sendReply(ctx, data.ChannelID, toCreate)
