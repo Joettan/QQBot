@@ -178,5 +178,5 @@ func (p *Processor) checkExist(ctx context.Context, userID string) (bool, error)
 		log.Println(err)
 		return false, err
 	}
-	return exist == 0, nil
+	return exist == 1, nil
 }
