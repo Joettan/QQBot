@@ -72,7 +72,8 @@ func (p Processor) ProcessATMessage(input string, data *dto.WSATMessageData) err
 			return err
 		}
 	case "天气":
-		log.Println("天气", cmd.Content)
+		log.Println(cmd.Content)
+		//log.Println("天气", cmd.Content)
 		location, err := service.W.FetchLocation(cmd.Content)
 		if err != nil {
 			log.Println("FetchLocation error", err)
