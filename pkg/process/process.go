@@ -10,6 +10,7 @@ import (
 	"log"
 	"qqBot/database"
 	"qqBot/global"
+	"strings"
 	"time"
 )
 
@@ -73,6 +74,10 @@ func (p Processor) ProcessMessage(input string, data *dto.WSMessageData) error {
 		return nil
 	}
 
+	if strings.Index(input, "退出") != -1 {
+		p.deleteMessageHistory(ctx, userId)
+	}
+
 	//如果存在相应key，说明在游戏环节之中
 	toCreate := &dto.MessageToCreate{
 		MsgID: data.ID,
@@ -80,10 +85,12 @@ func (p Processor) ProcessMessage(input string, data *dto.WSMessageData) error {
 	messages, _ := p.getMessageHistory(ctx, userId)
 	log.Println("messages", messages)
 	messages = append(messages, input)
-	fmt.Println(messages)
 	toCreate.Content, _ = p.GeneratorGPTContent(ctx, messages)
 	p.sendReply(ctx, data.ChannelID, toCreate)
-
+	err := p.saveMessage(ctx, userId, input)
+	if err != nil {
+		log.Println(err)
+	}
 	return nil
 }
 
