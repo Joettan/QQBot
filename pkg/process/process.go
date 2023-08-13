@@ -2,14 +2,14 @@ package process
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"github.com/sashabaranov/go-openai"
 	"github.com/tencent-connect/botgo/dto"
 	"github.com/tencent-connect/botgo/dto/message"
 	"github.com/tencent-connect/botgo/openapi"
 	"log"
 	"qqBot/database"
-	"qqBot/global"
+	"qqBot/pkg/service"
 	"strings"
 	"time"
 )
@@ -51,7 +51,7 @@ func (p Processor) ProcessATMessage(input string, data *dto.WSATMessageData) err
 		p.sendReply(ctx, channelId, toCreate)
 	case "21点":
 		input = "你作为庄家，我作为闲家，我们一起玩21点吧"
-		toCreate.Content, _ = p.GeneratorGPTContent(ctx, []string{input})
+		toCreate.Content, _ = service.G.GeneratorGPTContent(ctx, []string{input})
 		if toCreate.Content == "" {
 			log.Println("GeneratorGPTContent error")
 			return nil
@@ -71,9 +71,29 @@ func (p Processor) ProcessATMessage(input string, data *dto.WSATMessageData) err
 			log.Println("PostAudio error", err)
 			return err
 		}
+	case "天气":
+		log.Println("天气", cmd.Content)
+		location, err := service.W.FetchLocation(cmd.Content)
+		if err != nil {
+			log.Println("FetchLocation error", err)
+			return err
+		}
+		weather, err := service.W.FetchWeather(location)
+		if err != nil {
+			log.Println("FetchLocation error", err)
+			return err
+		}
+		weatherByteArray, err := json.Marshal(weather)
+		if err != nil {
+			log.Println("FetchLocation error", err)
+			return err
+		}
+		weatherString := string(weatherByteArray)
+		toCreate.Content = weatherString
+		p.sendReply(ctx, data.ChannelID, toCreate)
 	default:
 		fmt.Println([]string{input}[0])
-		toCreate.Content, _ = p.GeneratorGPTContent(ctx, []string{input})
+		toCreate.Content, _ = service.G.GeneratorGPTContent(ctx, []string{input})
 		if toCreate.Content == "" {
 			log.Println("GeneratorGPTContent error")
 			return nil
@@ -106,7 +126,7 @@ func (p Processor) ProcessMessage(input string, data *dto.WSMessageData) error {
 	messages, _ := p.getMessageHistory(ctx, userId)
 	log.Println("messages", messages)
 	messages = append(messages, input)
-	toCreate.Content, _ = p.GeneratorGPTContent(ctx, messages)
+	toCreate.Content, _ = service.G.GeneratorGPTContent(ctx, messages)
 	p.sendReply(ctx, data.ChannelID, toCreate)
 	err := p.saveMessage(ctx, userId, input)
 	if err != nil {
@@ -124,33 +144,6 @@ func (p Processor) sendReply(ctx context.Context, channelID string, toCreate *dt
 
 func (p *Processor) defaultReplyContent() (string, error) {
 	return "你好我是QQ机器人" + message.Emoji(307), nil
-}
-
-func (p *Processor) GeneratorGPTContent(ctx context.Context, msg []string) (string, error) {
-	client := openai.NewClient(global.GPTConfig.GPTToken)
-	messages := make([]openai.ChatCompletionMessage, 0, len(msg))
-	for _, v := range msg {
-		messages = append(messages, openai.ChatCompletionMessage{
-			Role:    openai.ChatMessageRoleUser,
-			Content: v,
-		})
-	}
-	log.Println(messages)
-	resp, err := client.CreateChatCompletion(
-		ctx,
-		openai.ChatCompletionRequest{
-			Model: openai.GPT3Dot5Turbo,
-			//Messages: messages,
-			Messages: messages,
-		},
-	)
-	if err != nil {
-		log.Printf("ChatGPT queryApi :%v", err)
-		return "", err
-	}
-	fmt.Println(resp.Choices)
-
-	return resp.Choices[0].Message.Content, nil
 }
 
 // 以用户的id为纬度，保存用户的消息，设置相应的时间

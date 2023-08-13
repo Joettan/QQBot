@@ -44,6 +44,7 @@ func init() {
 		panic(err)
 	}
 	service.InitGPTService()
+	service.InitWeatherService()
 	database.InitRedisEngine(context.Background())
 }
 

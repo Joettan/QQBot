@@ -8,3 +8,5 @@ RedisConfig:
   Host: localhost
   Port: 6379
   Password: ""
+WeatherUrl:
+  Url: https://api.qweather.com/v7/weather/3d?key=2d86ba4c63a04e0885032397e2a4795a&location=%s
