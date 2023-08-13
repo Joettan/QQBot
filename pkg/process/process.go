@@ -114,6 +114,7 @@ func (p Processor) ProcessMessage(input string, data *dto.WSMessageData) error {
 	ctx := context.Background()
 	userId := data.Author.ID
 	exist, _ := p.checkExist(ctx, userId)
+	log.Println("input", input)
 
 	//如果不存在相应key，说明不在游戏环节之中
 	if !exist {
