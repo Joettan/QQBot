@@ -8,3 +8,9 @@ type BotConfig struct {
 type GPTConfig struct {
 	GPTToken string `mapstructure:"GPTToken"`
 }
+
+type RedisConfig struct {
+	Host     string `mapstructure:"Host"`
+	Port     string `mapstructure:"Port"`
+	Password string `mapstructure:"Password"`
+}
