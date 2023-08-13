@@ -102,6 +102,7 @@ func (p Processor) ProcessATMessage(input string, data *dto.WSATMessageData) err
 			return nil
 		}
 		p.sendReply(ctx, data.ChannelID, toCreate)
+		p.saveMessage(ctx, data.Author.ID, input)
 	}
 
 	return nil
