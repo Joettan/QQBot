@@ -96,23 +96,28 @@ func (p *Processor) defaultReplyContent() (string, error) {
 
 func (p *Processor) GeneratorGPTContent(ctx context.Context, msg []string) (string, error) {
 	client := openai.NewClient(global.GPTConfig.GPTToken)
-	messages := make([]openai.ChatCompletionMessage, 0, len(msg))
-	for _, v := range msg {
-		messages = append(messages, openai.ChatCompletionMessage{
-			Role:    openai.ChatMessageRoleUser,
-			Content: v,
-		})
-	}
-	log.Println(messages)
+	//messages := make([]openai.ChatCompletionMessage, 0, len(msg))
+	//for _, v := range msg {
+	//	messages = append(messages, openai.ChatCompletionMessage{
+	//		Role:    openai.ChatMessageRoleUser,
+	//		Content: v,
+	//	})
+	//}
+	//log.Println(messages)
 	resp, err := client.CreateChatCompletion(
 		ctx,
 		openai.ChatCompletionRequest{
-			Model:    openai.GPT3Dot5Turbo,
-			Messages: messages,
+			Model: openai.GPT3Dot5Turbo,
+			//Messages: messages,
+			Messages: []openai.ChatCompletionMessage{{
+				Role:    openai.ChatMessageRoleUser,
+				Content: "test",
+			}},
 		},
 	)
 	if err != nil {
 		log.Printf("ChatGPT queryApi :%v", err)
+		return "", err
 	}
 	fmt.Println(resp.Choices)
 
