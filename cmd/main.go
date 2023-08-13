@@ -6,6 +6,7 @@ import (
 	"github.com/tencent-connect/botgo/token"
 	"github.com/tencent-connect/botgo/websocket"
 	"log"
+	"qqBot/database"
 	"qqBot/global"
 	"qqBot/pkg/config"
 	"qqBot/pkg/handler"
@@ -28,7 +29,7 @@ func main() {
 	//注册服务
 	_ = service.NewFactory()
 
-	intent := websocket.RegisterHandlers(handler.MessageHandler())
+	intent := websocket.RegisterHandlers(handler.ATMessageHandler())
 
 	log.Printf("intent:%+v", intent)
 
@@ -43,6 +44,7 @@ func init() {
 		panic(err)
 	}
 	service.InitGPTService()
+	database.InitRedisEngine(context.Background())
 }
 
 func setupSetting() error {
@@ -55,6 +57,10 @@ func setupSetting() error {
 		return err
 	}
 	err = setting.ReadSection("GPTConfig", &global.GPTConfig)
+	if err != nil {
+		return err
+	}
+	err = setting.ReadSection("RedisConfig", &global.RedisConfig)
 	if err != nil {
 		return err
 	}
