@@ -8,6 +8,7 @@ import (
 	"github.com/tencent-connect/botgo/dto/message"
 	"github.com/tencent-connect/botgo/openapi"
 	"log"
+	"net/url"
 	"qqBot/database"
 	"qqBot/pkg/service"
 	"strings"
@@ -74,7 +75,8 @@ func (p Processor) ProcessATMessage(input string, data *dto.WSATMessageData) err
 	case "天气":
 		log.Println(cmd.Content)
 		//log.Println("天气", cmd.Content)
-		location, err := service.W.FetchLocation(cmd.Content)
+		escaped := url.QueryEscape(cmd.Content)
+		location, err := service.W.FetchLocation(escaped)
 		if err != nil {
 			log.Println("FetchLocation error", err)
 			return err
@@ -84,7 +86,7 @@ func (p Processor) ProcessATMessage(input string, data *dto.WSATMessageData) err
 			log.Println("FetchLocation error", err)
 			return err
 		}
-		weatherByteArray, err := json.Marshal(weather)
+		weatherByteArray, err := json.Marshal(weather.Daily)
 		if err != nil {
 			log.Println("FetchLocation error", err)
 			return err
